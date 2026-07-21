@@ -1,0 +1,12 @@
+build/
+build_*/
+.vs/
+.vscode/
+.qodo/
+.tools/
+*.o
+*.obj
+*.exe
+*.dll
+*.user
+*.log

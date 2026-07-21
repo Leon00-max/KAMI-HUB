@@ -30,6 +30,14 @@ add_executable(arcade_hub
     src/managers/ResourceManager.cpp
     src/scenes/HomeScene.cpp
     src/ui/Button.cpp
+    src/ui/DrawingUtilities.cpp
+    src/ui/AnimatedButton.cpp
+    src/ui/NavigationBar.cpp
+    src/ui/GameCard.cpp
+    src/ui/GameSelectionPanel.cpp
+    src/ui/InfoPanel.cpp
+    src/ui/GlassPanel.cpp
+    src/ui/ActionButtonBar.cpp
 )
 
 target_include_directories(arcade_hub PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

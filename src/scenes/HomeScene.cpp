@@ -1,7 +1,6 @@
 #include "scenes/HomeScene.hpp"
 
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/Texture.hpp>
 #include "ui/Theme.hpp"
 
 HomeScene::HomeScene(ResourceManager& resources)
@@ -14,18 +13,25 @@ HomeScene::HomeScene(ResourceManager& resources)
     m_navBar = std::make_unique<NavigationBar>(font);
     m_gameSelection = std::make_unique<GameSelectionPanel>(font);
     m_gameBoard = std::make_unique<GlassPanel>(
-        sf::Vector2f(300.f, 90.f),
+        sf::Vector2f((1280.f - Theme::Sizes::GameBoardWidth) / 2.f, 95.f),
         sf::Vector2f(Theme::Sizes::GameBoardWidth, Theme::Sizes::GameBoardHeight)
     );
     m_infoPanel = std::make_unique<InfoPanel>(font);
     m_actionBar = std::make_unique<ActionButtonBar>(font);
+    // Nothing is running on the hub screen yet
+    m_actionBar->setButtonEnabled(ActionButtonBar::ButtonType::Pause, false);
+    m_actionBar->setButtonEnabled(ActionButtonBar::ButtonType::Restart, false);
 }
 
 void HomeScene::initializeBackground() {
-    // Try to load background image, fallback to generated texture
-    const sf::Texture& texture = m_resources.getTexture("placeholder");
-    m_background.setTexture(texture);
-    m_background.setScale(1.6f, 1.6f);
+    // Full-window diagonal gradient between the theme's background tones
+    const sf::Color top = Theme::Colors::DarkBg();
+    const sf::Color bottom = Theme::Colors::LightBg();
+    m_background = sf::VertexArray(sf::Quads, 4);
+    m_background[0] = sf::Vertex(sf::Vector2f(0.f, 0.f), top);
+    m_background[1] = sf::Vertex(sf::Vector2f(1280.f, 0.f), top);
+    m_background[2] = sf::Vertex(sf::Vector2f(1280.f, 720.f), bottom);
+    m_background[3] = sf::Vertex(sf::Vector2f(0.f, 720.f), bottom);
 }
 
 void HomeScene::handleEvent(const sf::Event& event) {

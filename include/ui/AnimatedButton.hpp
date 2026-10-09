@@ -9,6 +9,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include "DrawingUtilities.hpp"
 #include "UIComponent.hpp"
 #include "Theme.hpp"
 
@@ -41,6 +42,7 @@ public:
     void setStyle(ButtonStyle style);
     void setColors(const sf::Color& idle, const sf::Color& hover, const sf::Color& pressed);
     void setEnabled(bool enabled);
+    void setIcon(DrawingUtilities::Icon icon) { m_icon = icon; }
     void setCallback(std::function<void()> onClick) { m_onClick = onClick; }
 
     // Input handling
@@ -62,6 +64,7 @@ private:
 
     // Text
     sf::Text m_text;
+    DrawingUtilities::Icon m_icon = DrawingUtilities::Icon::None;
 
     // Colors
     sf::Color m_idleColor;

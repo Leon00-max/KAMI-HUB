@@ -16,6 +16,29 @@
  */
 class DrawingUtilities {
 public:
+    // Shape-drawn icons; the bundled font has no emoji or symbol glyphs
+    enum class Icon {
+        None,
+        Blocks,  // Tetris
+        Paddle,  // Breakout
+        Gear,    // Settings
+        Music,
+        Speaker
+    };
+
+    /**
+     * Draw an icon centered on a point
+     * @param center Icon center
+     * @param size Edge length of the square the icon fits in
+     */
+    static void drawIcon(
+        sf::RenderTarget& target,
+        Icon icon,
+        const sf::Vector2f& center,
+        float size,
+        const sf::Color& color
+    );
+
     /**
      * Draw a rounded rectangle
      * @param target Render target
@@ -48,8 +71,8 @@ public:
         sf::RenderTarget& target,
         const sf::Vector2f& position,
         const sf::Vector2f& size,
-        const sf::Color& glassColor = Theme::Colors::GlassBase,
-        const sf::Color& glowColor = Theme::Colors::GlassBorder
+        const sf::Color& glassColor = Theme::Colors::GlassBase(),
+        const sf::Color& glowColor = Theme::Colors::GlassBorder()
     );
 
     /**

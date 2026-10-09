@@ -27,10 +27,8 @@ AnimatedButton::AnimatedButton(
     setStyle(style);
 
     // Center text in button
-    m_text.setOrigin(
-        m_text.getLocalBounds().width / 2.f,
-        m_text.getLocalBounds().height / 2.f
-    );
+    const sf::FloatRect bounds = m_text.getLocalBounds();
+    m_text.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
     m_text.setPosition(
         position.x + size.x / 2.f,
         position.y + size.y / 2.f
@@ -38,7 +36,7 @@ AnimatedButton::AnimatedButton(
 }
 
 void AnimatedButton::setLabel(const std::string& label) {
-    m_text.setString(label);
+    m_text.setString(sf::String::fromUtf8(label.begin(), label.end()));
     m_text.setCharacterSize(Theme::Typography::FontSizes::Button);
 }
 
@@ -182,6 +180,13 @@ void AnimatedButton::draw(sf::RenderTarget& target) {
     transform.translate(m_position.x + m_size.x / 2.f, m_position.y + m_size.y / 2.f);
     transform.scale(m_hoverScale * m_pressScale, m_hoverScale * m_pressScale);
     transform.translate(-m_position.x - m_size.x / 2.f, -m_position.y - m_size.y / 2.f);
+
+    if (m_icon != DrawingUtilities::Icon::None) {
+        DrawingUtilities::drawIcon(
+            target, m_icon, m_position + m_size / 2.f, m_size.y * 0.5f, Theme::Colors::TextGray()
+        );
+        return;
+    }
 
     target.draw(m_text, transform);
 }

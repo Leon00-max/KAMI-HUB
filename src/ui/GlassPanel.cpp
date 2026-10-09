@@ -37,24 +37,27 @@ void GlassPanel::draw(sf::RenderTarget& target) {
     sf::Color gridColor = Theme::Colors::GlassBorder();
     gridColor.a = 30; // Very subtle
 
-    const float cellSize = 40.f;
-    const float startX = m_position.x;
-    const float startY = m_position.y;
+    const int columns = Theme::Sizes::GameBoardColumns;
+    const int rows = Theme::Sizes::GameBoardRows;
+    const float cellWidth = m_size.x / static_cast<float>(columns);
+    const float cellHeight = m_size.y / static_cast<float>(rows);
 
     // Draw vertical grid lines
-    for (float x = startX; x <= startX + m_size.x; x += cellSize) {
+    for (int col = 1; col < columns; ++col) {
+        const float x = m_position.x + col * cellWidth;
         sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(x, startY), gridColor),
-            sf::Vertex(sf::Vector2f(x, startY + m_size.y), gridColor)
+            sf::Vertex(sf::Vector2f(x, m_position.y), gridColor),
+            sf::Vertex(sf::Vector2f(x, m_position.y + m_size.y), gridColor)
         };
         target.draw(line, 2, sf::Lines);
     }
 
     // Draw horizontal grid lines
-    for (float y = startY; y <= startY + m_size.y; y += cellSize) {
+    for (int row = 1; row < rows; ++row) {
+        const float y = m_position.y + row * cellHeight;
         sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(startX, y), gridColor),
-            sf::Vertex(sf::Vector2f(startX + m_size.x, y), gridColor)
+            sf::Vertex(sf::Vector2f(m_position.x, y), gridColor),
+            sf::Vertex(sf::Vector2f(m_position.x + m_size.x, y), gridColor)
         };
         target.draw(line, 2, sf::Lines);
     }

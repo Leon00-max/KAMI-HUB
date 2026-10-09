@@ -38,6 +38,8 @@ public:
     // Drawing
     void draw(sf::RenderTarget& target) override;
 
+    void setButtonEnabled(ButtonType type, bool enabled);
+
     // Query button clicks
     int getClickedButtonIndex() const { return m_clickedButtonIndex; }
 

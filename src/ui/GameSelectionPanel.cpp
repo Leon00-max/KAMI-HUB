@@ -18,7 +18,7 @@ void GameSelectionPanel::initializeGameCards() {
         m_position + sf::Vector2f(Theme::Spacing::Medium, Theme::Spacing::Large),
         sf::Vector2f(Theme::Sizes::GameCardWidth, Theme::Sizes::GameCardHeight),
         "TETRIS",
-        "🧱",
+        DrawingUtilities::Icon::Blocks,
         m_font
     );
 
@@ -27,7 +27,7 @@ void GameSelectionPanel::initializeGameCards() {
         m_position + sf::Vector2f(Theme::Spacing::Medium, Theme::Spacing::Large + Theme::Sizes::GameCardHeight + Theme::Spacing::Large),
         sf::Vector2f(Theme::Sizes::GameCardWidth, Theme::Sizes::GameCardHeight),
         "BREAKOUT",
-        "🎾",
+        DrawingUtilities::Icon::Paddle,
         m_font
     );
 }
@@ -72,7 +72,7 @@ void GameSelectionPanel::draw(sf::RenderTarget& target) {
     title.setFont(m_font);
     title.setString("GAME MODE");
     title.setCharacterSize(Theme::Typography::FontSizes::BodySmall);
-    title.setFillColor(Theme::Colors::TextGray);
+    title.setFillColor(Theme::Colors::TextGray());
     title.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + Theme::Spacing::Small);
     target.draw(title);
 

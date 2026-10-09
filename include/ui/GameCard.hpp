@@ -6,6 +6,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include "DrawingUtilities.hpp"
 #include "UIComponent.hpp"
 #include "Theme.hpp"
 
@@ -22,14 +23,14 @@ public:
         const sf::Vector2f& position,
         const sf::Vector2f& size,
         const std::string& gameName,
-        const std::string& gameIcon,
+        DrawingUtilities::Icon gameIcon,
         const sf::Font& font
     );
 
     // Configuration
     void setSelected(bool selected) { m_selected = selected; }
     void setGameName(const std::string& name);
-    void setGameIcon(const std::string& icon);
+    void setGameIcon(DrawingUtilities::Icon icon) { m_gameIcon = icon; }
     void setFont(const sf::Font& font);
 
     // Input handling
@@ -48,7 +49,7 @@ public:
 
 private:
     sf::Text m_gameName;
-    sf::Text m_gameIcon;
+    DrawingUtilities::Icon m_gameIcon = DrawingUtilities::Icon::None;
 
     bool m_selected = false;
     bool m_hovered = false;

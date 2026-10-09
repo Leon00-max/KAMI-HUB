@@ -3,7 +3,7 @@
 #include <memory>
 
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
@@ -36,7 +36,7 @@ public:
 
 private:
     ResourceManager& m_resources;
-    sf::Sprite m_background;
+    sf::VertexArray m_background;
 
     // UI Components
     std::unique_ptr<NavigationBar> m_navBar;

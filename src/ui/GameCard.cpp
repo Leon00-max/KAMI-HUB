@@ -9,7 +9,7 @@ GameCard::GameCard(
     const sf::Vector2f& position,
     const sf::Vector2f& size,
     const std::string& gameName,
-    const std::string& gameIcon,
+    DrawingUtilities::Icon gameIcon,
     const sf::Font& font
 ) {
     setPosition(position);
@@ -25,15 +25,8 @@ void GameCard::setGameName(const std::string& name) {
     m_gameName.setFillColor(Theme::Colors::TextWhite());
 }
 
-void GameCard::setGameIcon(const std::string& icon) {
-    m_gameIcon.setString(icon);
-    m_gameIcon.setCharacterSize(48);
-    m_gameIcon.setFillColor(Theme::Colors::PrimaryGreen());
-}
-
 void GameCard::setFont(const sf::Font& font) {
     m_gameName.setFont(font);
-    m_gameIcon.setFont(font);
 }
 
 bool GameCard::handleEvent(const sf::Event& event) {
@@ -65,7 +58,7 @@ void GameCard::update(float deltaTime, const sf::Vector2f& mousePosition) {
 
 void GameCard::draw(sf::RenderTarget& target) {
     // Background color based on state
-    sf::Color bgColor = Theme::Colors::LightBg;
+    sf::Color bgColor = Theme::Colors::LightBg();
     sf::Color borderColor = sf::Color::Transparent;
     float borderWidth = 0.f;
 
@@ -91,13 +84,13 @@ void GameCard::draw(sf::RenderTarget& target) {
     );
 
     // Draw icon (centered)
-    auto iconBounds = m_gameIcon.getLocalBounds();
-    m_gameIcon.setOrigin(iconBounds.width / 2.f, iconBounds.height / 2.f);
-    m_gameIcon.setPosition(
-        m_position.x + m_size.x / 2.f,
-        m_position.y + m_size.y / 3.f
+    DrawingUtilities::drawIcon(
+        target,
+        m_gameIcon,
+        sf::Vector2f(m_position.x + m_size.x / 2.f, m_position.y + m_size.y / 3.f + 4.f),
+        48.f,
+        Theme::Colors::PrimaryGreen()
     );
-    target.draw(m_gameIcon);
 
     // Draw name (below icon)
     auto nameBounds = m_gameName.getLocalBounds();

@@ -15,6 +15,14 @@ void ActionButtonBar::setWindowWidth(float width) {
     initializeButtons();
 }
 
+void ActionButtonBar::setButtonEnabled(ButtonType type, bool enabled) {
+    for (size_t i = 0; i < m_buttons.size(); ++i) {
+        if (m_buttonTypes[i] == type) {
+            m_buttons[i].setEnabled(enabled);
+        }
+    }
+}
+
 void ActionButtonBar::initializeButtons() {
     m_buttons.clear();
     m_buttonTypes.clear();

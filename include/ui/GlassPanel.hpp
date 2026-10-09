@@ -28,6 +28,6 @@ public:
     void draw(sf::RenderTarget& target) override;
 
 private:
-    sf::Color m_glassColor = Theme::Colors::GlassBase;
-    sf::Color m_glowColor = Theme::Colors::GlassBorder;
+    sf::Color m_glassColor = Theme::Colors::GlassBase();
+    sf::Color m_glowColor = Theme::Colors::GlassBorder();
 };

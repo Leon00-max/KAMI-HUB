@@ -85,15 +85,17 @@ public:
         static constexpr float NavBarHeight = 70.f;
 
         // Game board / Glass panel
-        static constexpr float GameBoardWidth = 330.f;
-        static constexpr float GameBoardHeight = 460.f;
+        static constexpr float GameBoardWidth = 250.f;
+        static constexpr float GameBoardHeight = 500.f;
+        static constexpr int GameBoardColumns = 10;
+        static constexpr int GameBoardRows = 20;
 
         // Side panels
-        static constexpr float SidePanelWidth = 200.f;
-        static constexpr float SidePanelHeight = 500.f;
+        static constexpr float SidePanelWidth = 220.f;
+        static constexpr float SidePanelHeight = 510.f;
 
         // Game cards
-        static constexpr float GameCardWidth = 160.f;
+        static constexpr float GameCardWidth = 188.f;
         static constexpr float GameCardHeight = 140.f;
 
         // Standard button

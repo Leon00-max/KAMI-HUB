@@ -30,7 +30,7 @@ void NavigationBar::initializeNavItems() {
         item.setFont(m_font);
         item.setString(navLabels[i]);
         item.setCharacterSize(Theme::Typography::FontSizes::NavItem);
-        item.setFillColor(Theme::Colors::TextGray);
+        item.setFillColor(Theme::Colors::TextGray());
         item.setPosition(startX + i * spacing, Theme::Sizes::NavBarHeight / 2.f - 10.f);
         m_navItems.push_back(item);
     }
@@ -47,28 +47,31 @@ void NavigationBar::initializeControlButtons() {
     m_controlButtons.emplace_back(
         sf::Vector2f(startX, Theme::Sizes::NavBarHeight / 2.f - buttonSize / 2.f),
         sf::Vector2f(buttonSize, buttonSize),
-        "⚙",
+        "",
         m_font,
         AnimatedButton::ButtonStyle::Tertiary
     );
+    m_controlButtons.back().setIcon(DrawingUtilities::Icon::Gear);
 
     // Music button
     m_controlButtons.emplace_back(
         sf::Vector2f(startX + spacing, Theme::Sizes::NavBarHeight / 2.f - buttonSize / 2.f),
         sf::Vector2f(buttonSize, buttonSize),
-        "♪",
+        "",
         m_font,
         AnimatedButton::ButtonStyle::Tertiary
     );
+    m_controlButtons.back().setIcon(DrawingUtilities::Icon::Music);
 
     // Sound button
     m_controlButtons.emplace_back(
         sf::Vector2f(startX + spacing * 2, Theme::Sizes::NavBarHeight / 2.f - buttonSize / 2.f),
         sf::Vector2f(buttonSize, buttonSize),
-        "🔊",
+        "",
         m_font,
         AnimatedButton::ButtonStyle::Tertiary
     );
+    m_controlButtons.back().setIcon(DrawingUtilities::Icon::Speaker);
 }
 
 bool NavigationBar::handleEvent(const sf::Event& event) {
@@ -135,10 +138,10 @@ void NavigationBar::draw(sf::RenderTarget& target) {
         1.f
     );
 
-    // Draw logo (placeholder "ARCADE HUB")
+    // Draw logo
     sf::Text logo;
     logo.setFont(m_font);
-    logo.setString("ARCADE HUB");
+    logo.setString("KAMI HUB");
     logo.setCharacterSize(24);
     logo.setFillColor(Theme::Colors::PrimaryGreen());
     logo.setPosition(20.f, Theme::Sizes::NavBarHeight / 2.f - 12.f);

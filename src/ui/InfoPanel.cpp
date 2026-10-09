@@ -5,16 +5,15 @@
 
 InfoPanel::InfoPanel(const sf::Font& font)
     : m_font(font) {
-    // Default position/size - will be set by HomeScene
-    setPosition(sf::Vector2f(950.f, 90.f));
-    setSize(sf::Vector2f(250.f, 500.f));
+    setPosition(sf::Vector2f(1280.f - 20.f - Theme::Sizes::SidePanelWidth, 90.f));
+    setSize(sf::Vector2f(Theme::Sizes::SidePanelWidth, Theme::Sizes::SidePanelHeight));
     initializeTexts();
 }
 
 void InfoPanel::initializeTexts() {
     // Next Piece label
     m_nextLabel.setFont(m_font);
-    m_nextLabel.setString("NEXT PIECE");
+    m_nextLabel.setString("NEXT");
     m_nextLabel.setCharacterSize(Theme::Typography::FontSizes::BodySmall);
     m_nextLabel.setFillColor(Theme::Colors::TextGray());
     m_nextLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 20.f);
@@ -27,7 +26,7 @@ void InfoPanel::initializeTexts() {
     m_scoreLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 130.f);
 
     m_scoreValue.setFont(m_font);
-    m_scoreValue.setString("12,450");
+    m_scoreValue.setString("0");
     m_scoreValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
     m_scoreValue.setFillColor(Theme::Colors::AccentYellow());
     m_scoreValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 155.f);
@@ -40,7 +39,7 @@ void InfoPanel::initializeTexts() {
     m_levelLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 210.f);
 
     m_levelValue.setFont(m_font);
-    m_levelValue.setString("05");
+    m_levelValue.setString("01");
     m_levelValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
     m_levelValue.setFillColor(Theme::Colors::PrimaryGreen());
     m_levelValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 235.f);
@@ -53,7 +52,7 @@ void InfoPanel::initializeTexts() {
     m_linesLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 290.f);
 
     m_linesValue.setFont(m_font);
-    m_linesValue.setString("42");
+    m_linesValue.setString("0");
     m_linesValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
     m_linesValue.setFillColor(Theme::Colors::AccentYellow());
     m_linesValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 315.f);
@@ -66,7 +65,7 @@ void InfoPanel::initializeTexts() {
     m_highScoreLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 370.f);
 
     m_highScoreValue.setFont(m_font);
-    m_highScoreValue.setString("98,750");
+    m_highScoreValue.setString("0");
     m_highScoreValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
     m_highScoreValue.setFillColor(Theme::Colors::AccentPurple());
     m_highScoreValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 395.f);
@@ -108,14 +107,7 @@ void InfoPanel::draw(sf::RenderTarget& target) {
         1.f
     );
 
-    // Draw "Next Piece" placeholder text
-    sf::Text placeholder;
-    placeholder.setFont(m_font);
-    placeholder.setString("[ Next ]");
-    placeholder.setCharacterSize(Theme::Typography::FontSizes::BodySmall);
-    placeholder.setFillColor(Theme::Colors::TextDarkGray());
-    placeholder.setPosition(m_position.x + Theme::Spacing::Medium + 30.f, m_position.y + 55.f);
-    target.draw(placeholder);
+    target.draw(m_nextLabel);
 
     // Draw info
     target.draw(m_scoreLabel);

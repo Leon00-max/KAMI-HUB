@@ -1,121 +1,155 @@
 #include "ui/InfoPanel.hpp"
 
+#include <algorithm>
+#include <cstdio>
 #include <string>
+
 #include "ui/DrawingUtilities.hpp"
 
-InfoPanel::InfoPanel(const sf::Font& font)
-    : m_font(font) {
-    setPosition(sf::Vector2f(1280.f - 20.f - Theme::Sizes::SidePanelWidth, 90.f));
-    setSize(sf::Vector2f(Theme::Sizes::SidePanelWidth, Theme::Sizes::SidePanelHeight));
-    initializeTexts();
+namespace {
+constexpr float StatRowHeight = Theme::Layout::StatsHeight / 4.f;
+
+std::string withThousandsSeparators(int value) {
+    std::string digits = std::to_string(value < 0 ? -value : value);
+    for (int i = static_cast<int>(digits.size()) - 3; i > 0; i -= 3) {
+        digits.insert(static_cast<std::size_t>(i), ",");
+    }
+    return value < 0 ? "-" + digits : digits;
 }
 
-void InfoPanel::initializeTexts() {
-    // Next Piece label
-    m_nextLabel.setFont(m_font);
-    m_nextLabel.setString("NEXT");
-    m_nextLabel.setCharacterSize(Theme::Typography::FontSizes::BodySmall);
-    m_nextLabel.setFillColor(Theme::Colors::TextGray());
-    m_nextLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 20.f);
-
-    // Score
-    m_scoreLabel.setFont(m_font);
-    m_scoreLabel.setString("SCORE");
-    m_scoreLabel.setCharacterSize(Theme::Typography::FontSizes::Label);
-    m_scoreLabel.setFillColor(Theme::Colors::TextGray());
-    m_scoreLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 130.f);
-
-    m_scoreValue.setFont(m_font);
-    m_scoreValue.setString("0");
-    m_scoreValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
-    m_scoreValue.setFillColor(Theme::Colors::AccentYellow());
-    m_scoreValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 155.f);
-
-    // Level
-    m_levelLabel.setFont(m_font);
-    m_levelLabel.setString("LEVEL");
-    m_levelLabel.setCharacterSize(Theme::Typography::FontSizes::Label);
-    m_levelLabel.setFillColor(Theme::Colors::TextGray());
-    m_levelLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 210.f);
-
-    m_levelValue.setFont(m_font);
-    m_levelValue.setString("01");
-    m_levelValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
-    m_levelValue.setFillColor(Theme::Colors::PrimaryGreen());
-    m_levelValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 235.f);
-
-    // Lines
-    m_linesLabel.setFont(m_font);
-    m_linesLabel.setString("LINES");
-    m_linesLabel.setCharacterSize(Theme::Typography::FontSizes::Label);
-    m_linesLabel.setFillColor(Theme::Colors::TextGray());
-    m_linesLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 290.f);
-
-    m_linesValue.setFont(m_font);
-    m_linesValue.setString("0");
-    m_linesValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
-    m_linesValue.setFillColor(Theme::Colors::AccentYellow());
-    m_linesValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 315.f);
-
-    // High Score
-    m_highScoreLabel.setFont(m_font);
-    m_highScoreLabel.setString("HIGH SCORE");
-    m_highScoreLabel.setCharacterSize(Theme::Typography::FontSizes::Label);
-    m_highScoreLabel.setFillColor(Theme::Colors::TextGray());
-    m_highScoreLabel.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 370.f);
-
-    m_highScoreValue.setFont(m_font);
-    m_highScoreValue.setString("0");
-    m_highScoreValue.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
-    m_highScoreValue.setFillColor(Theme::Colors::AccentPurple());
-    m_highScoreValue.setPosition(m_position.x + Theme::Spacing::Medium, m_position.y + 395.f);
+void centerText(sf::Text& text, float centerX, float centerY) {
+    const sf::FloatRect bounds = text.getLocalBounds();
+    text.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
+    text.setPosition(centerX, centerY);
+}
 }
 
-void InfoPanel::setScore(int score) {
-    m_scoreValue.setString(std::to_string(score));
+InfoPanel::InfoPanel(const ResourceManager& resources)
+    : m_pauseButton(
+          sf::Vector2f(Theme::Layout::SideX, Theme::Layout::SidePauseY),
+          sf::Vector2f(Theme::Layout::SideWidth, Theme::Layout::SidePauseHeight),
+          "PAUSE",
+          resources.getFont(Theme::Fonts::Bold),
+          AnimatedButton::ButtonStyle::Blue,
+          DrawingUtilities::Icon::Pause
+      ) {
+    setPosition(sf::Vector2f(Theme::Layout::SideX, Theme::Layout::NextY));
+    setSize(sf::Vector2f(Theme::Layout::SideWidth, Theme::Layout::SidePauseY + Theme::Layout::SidePauseHeight - Theme::Layout::NextY));
+
+    const float centerX = Theme::Layout::SideX + Theme::Layout::SideWidth / 2.f;
+    const sf::Font& labelFont = resources.getFont(Theme::Fonts::SemiBold);
+    const sf::Font& valueFont = resources.getFont(Theme::Fonts::Bold);
+
+    m_nextLabel = sf::Text("NEXT", labelFont, Theme::FontSizes::StatLabel);
+    m_nextLabel.setFillColor(Theme::Colors::TextWhite());
+    centerText(m_nextLabel, centerX, Theme::Layout::NextY + 18.f);
+
+    const struct {
+        const char* label;
+        sf::Color color;
+    } stats[] = {
+        {"SCORE", Theme::Colors::GreenBright()},
+        {"LEVEL", Theme::Colors::BlueBright()},
+        {"LINES", Theme::Colors::Amber()},
+        {"HIGH SCORE", Theme::Colors::PurpleBright()},
+    };
+
+    for (std::size_t i = 0; i < 4; ++i) {
+        const float rowTop = Theme::Layout::StatsY + i * StatRowHeight;
+        Stat stat{sf::Text(stats[i].label, labelFont, Theme::FontSizes::StatLabel),
+                  sf::Text("", valueFont, Theme::FontSizes::StatValue)};
+        stat.label.setFillColor(Theme::Colors::TextWhite());
+        centerText(stat.label, centerX, rowTop + 19.f);
+        stat.value.setFillColor(stats[i].color);
+        stat.value.setPosition(centerX, rowTop + 42.f);
+        m_stats.push_back(stat);
+    }
+
+    setScore(0);
+    setLevel(1);
+    setLines(0);
+    setHighScore(0);
 }
+
+void InfoPanel::setStatValue(Stat& stat, const std::string& value) {
+    stat.value.setString(value);
+    centerText(stat.value, stat.value.getPosition().x, stat.value.getPosition().y);
+}
+
+void InfoPanel::setScore(int score) { setStatValue(m_stats[0], withThousandsSeparators(score)); }
 
 void InfoPanel::setLevel(int level) {
-    std::string levelStr = (level < 10 ? "0" : "") + std::to_string(level);
-    m_levelValue.setString(levelStr);
+    char buffer[8];
+    std::snprintf(buffer, sizeof(buffer), "%02d", level);
+    setStatValue(m_stats[1], buffer);
 }
 
-void InfoPanel::setLines(int lines) {
-    m_linesValue.setString(std::to_string(lines));
+void InfoPanel::setLines(int lines) { setStatValue(m_stats[2], std::to_string(lines)); }
+
+void InfoPanel::setHighScore(int highScore) { setStatValue(m_stats[3], withThousandsSeparators(highScore)); }
+
+void InfoPanel::setNextPiece(const std::vector<sf::Vector2i>& cells, const sf::Color& color) {
+    m_nextCells = cells;
+    m_nextColor = color;
 }
 
-void InfoPanel::setHighScore(int highScore) {
-    m_highScoreValue.setString(std::to_string(highScore));
+bool InfoPanel::handleEvent(const sf::Event& event) {
+    m_pauseClicked = m_pauseButton.handleEvent(event) || m_pauseClicked;
+    return m_pauseClicked;
+}
+
+void InfoPanel::update(float deltaTime, const sf::Vector2f& mousePosition) {
+    m_pauseClicked = false;
+    m_pauseButton.update(deltaTime, mousePosition);
 }
 
 void InfoPanel::draw(sf::RenderTarget& target) {
-    // Draw panel background
-    DrawingUtilities::drawGlassPanel(
-        target,
-        m_position,
-        m_size
-    );
+    const float x = Theme::Layout::SideX;
+    const float width = Theme::Layout::SideWidth;
 
-    // Draw Next Piece placeholder (small glass area)
+    // Next piece box
     DrawingUtilities::drawRoundedRectangle(
-        target,
-        m_position + sf::Vector2f(Theme::Spacing::Medium, 45.f),
-        sf::Vector2f(m_size.x - Theme::Spacing::Medium * 2, 70.f),
-        Theme::Effects::CornerRadius,
-        Theme::Colors::DarkBg(),
-        Theme::Colors::GlassBorder(),
-        1.f
+        target, sf::Vector2f(x, Theme::Layout::NextY), sf::Vector2f(width, Theme::Layout::NextHeight),
+        Theme::Effects::CornerRadius, Theme::Colors::PanelBg(), Theme::Colors::PanelBorder(), 1.f
     );
-
     target.draw(m_nextLabel);
 
-    // Draw info
-    target.draw(m_scoreLabel);
-    target.draw(m_scoreValue);
-    target.draw(m_levelLabel);
-    target.draw(m_levelValue);
-    target.draw(m_linesLabel);
-    target.draw(m_linesValue);
-    target.draw(m_highScoreLabel);
-    target.draw(m_highScoreValue);
+    if (!m_nextCells.empty()) {
+        int minX = m_nextCells[0].x, maxX = minX, minY = m_nextCells[0].y, maxY = minY;
+        for (const auto& cell : m_nextCells) {
+            minX = std::min(minX, cell.x);
+            maxX = std::max(maxX, cell.x);
+            minY = std::min(minY, cell.y);
+            maxY = std::max(maxY, cell.y);
+        }
+        const float cell = Theme::Layout::CellSize;
+        const sf::Vector2f pieceSize((maxX - minX + 1) * cell, (maxY - minY + 1) * cell);
+        const sf::Vector2f origin(
+            x + (width - pieceSize.x) / 2.f,
+            Theme::Layout::NextY + 34.f + (Theme::Layout::NextHeight - 34.f - pieceSize.y) / 2.f
+        );
+        for (const auto& c : m_nextCells) {
+            DrawingUtilities::drawBlock(
+                target, origin + sf::Vector2f((c.x - minX) * cell, (c.y - minY) * cell), cell, m_nextColor
+            );
+        }
+    }
+
+    // Stats box with dividers between rows
+    DrawingUtilities::drawRoundedRectangle(
+        target, sf::Vector2f(x, Theme::Layout::StatsY), sf::Vector2f(width, Theme::Layout::StatsHeight),
+        Theme::Effects::CornerRadius, Theme::Colors::PanelBg(), Theme::Colors::PanelBorder(), 1.f
+    );
+    for (int i = 1; i < 4; ++i) {
+        const float y = Theme::Layout::StatsY + i * StatRowHeight;
+        DrawingUtilities::drawLine(
+            target, sf::Vector2f(x + 8.f, y), sf::Vector2f(x + width - 8.f, y), 1.f, Theme::Colors::Divider()
+        );
+    }
+    for (const auto& stat : m_stats) {
+        target.draw(stat.label);
+        target.draw(stat.value);
+    }
+
+    m_pauseButton.draw(target);
 }

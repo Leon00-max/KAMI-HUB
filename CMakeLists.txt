@@ -34,6 +34,7 @@ add_executable(arcade_hub
     src/ui/AnimatedButton.cpp
     src/ui/NavigationBar.cpp
     src/ui/GameCard.cpp
+    src/ui/GameBoard.cpp
     src/ui/GameSelectionPanel.cpp
     src/ui/InfoPanel.cpp
     src/ui/GlassPanel.cpp

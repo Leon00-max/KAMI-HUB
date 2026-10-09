@@ -5,14 +5,14 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "UIComponent.hpp"
+#include "managers/ResourceManager.hpp"
 #include "AnimatedButton.hpp"
 #include "Theme.hpp"
+#include "UIComponent.hpp"
 
 /**
  * @class ActionButtonBar
- * @brief Bottom action button bar with Play, Pause, Restart, Menu, Settings
- * Supports different colored buttons for visual hierarchy
+ * @brief Centered row of colored action buttons: Play, Pause, Restart, Menu, Settings
  */
 class ActionButtonBar : public UIComponent {
 public:
@@ -24,31 +24,18 @@ public:
         Settings
     };
 
-    ActionButtonBar(const sf::Font& font);
-
-    // Set window width for centered layout
-    void setWindowWidth(float width);
-
-    // Input handling
-    bool handleEvent(const sf::Event& event);
-
-    // Update (for button animations)
-    void update(float deltaTime, const sf::Vector2f& mousePosition);
-
-    // Drawing
-    void draw(sf::RenderTarget& target) override;
+    explicit ActionButtonBar(const ResourceManager& resources);
 
     void setButtonEnabled(ButtonType type, bool enabled);
 
-    // Query button clicks
+    bool handleEvent(const sf::Event& event);
+    void update(float deltaTime, const sf::Vector2f& mousePosition);
+    void draw(sf::RenderTarget& target) override;
+
+    // Index (ButtonType order) of the button clicked this frame, or -1
     int getClickedButtonIndex() const { return m_clickedButtonIndex; }
 
 private:
-    const sf::Font& m_font;
     std::vector<AnimatedButton> m_buttons;
-    std::vector<ButtonType> m_buttonTypes;
     int m_clickedButtonIndex = -1;
-    float m_windowWidth = 1280.f;
-
-    void initializeButtons();
 };

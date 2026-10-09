@@ -1,43 +1,51 @@
 #pragma once
 
-#include <SFML/Graphics/Text.hpp>
+#include <vector>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Event.hpp>
 
-#include "UIComponent.hpp"
+#include "managers/ResourceManager.hpp"
+#include "AnimatedButton.hpp"
 #include "Theme.hpp"
+#include "UIComponent.hpp"
 
 /**
  * @class InfoPanel
- * @brief Right-side panel displaying game information
- * Shows: Next Piece (placeholder), Score, Level, Lines, High Score, Pause button
+ * @brief Column beside the board: next piece, score/level/lines/high score, pause
  */
 class InfoPanel : public UIComponent {
 public:
-    InfoPanel(const sf::Font& font);
+    explicit InfoPanel(const ResourceManager& resources);
 
-    // Update values
     void setScore(int score);
     void setLevel(int level);
     void setLines(int lines);
     void setHighScore(int highScore);
 
-    // Drawing
+    // Cells of the upcoming piece in its own grid coordinates
+    void setNextPiece(const std::vector<sf::Vector2i>& cells, const sf::Color& color);
+    void setPauseEnabled(bool enabled) { m_pauseButton.setEnabled(enabled); }
+
+    bool handleEvent(const sf::Event& event);
+    void update(float deltaTime, const sf::Vector2f& mousePosition);
     void draw(sf::RenderTarget& target) override;
 
+    bool wasPauseClicked() const { return m_pauseClicked; }
+
 private:
-    const sf::Font& m_font;
+    struct Stat {
+        sf::Text label;
+        sf::Text value;
+    };
 
-    // Info texts
+    void setStatValue(Stat& stat, const std::string& value);
+
     sf::Text m_nextLabel;
-    sf::Text m_scoreLabel;
-    sf::Text m_scoreValue;
-    sf::Text m_levelLabel;
-    sf::Text m_levelValue;
-    sf::Text m_linesLabel;
-    sf::Text m_linesValue;
-    sf::Text m_highScoreLabel;
-    sf::Text m_highScoreValue;
-
-    void initializeTexts();
+    std::vector<Stat> m_stats; // Score, level, lines, high score
+    std::vector<sf::Vector2i> m_nextCells;
+    sf::Color m_nextColor = sf::Color::Transparent;
+    AnimatedButton m_pauseButton;
+    bool m_pauseClicked = false;
 };

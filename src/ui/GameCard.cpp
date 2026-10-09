@@ -1,103 +1,62 @@
 #include "ui/GameCard.hpp"
 
-#include <SFML/Graphics/RectangleShape.hpp>
-#include "ui/DrawingUtilities.hpp"
-
-GameCard::GameCard() {}
+#include <algorithm>
 
 GameCard::GameCard(
     const sf::Vector2f& position,
     const sf::Vector2f& size,
     const std::string& gameName,
-    DrawingUtilities::Icon gameIcon,
+    DrawingUtilities::Icon icon,
+    const sf::Color& iconColor,
     const sf::Font& font
-) {
+)
+    : m_name(gameName, font, Theme::FontSizes::CardLabel), m_icon(icon), m_iconColor(iconColor) {
     setPosition(position);
     setSize(size);
-    setFont(font);
-    setGameName(gameName);
-    setGameIcon(gameIcon);
-}
-
-void GameCard::setGameName(const std::string& name) {
-    m_gameName.setString(name);
-    m_gameName.setCharacterSize(Theme::Typography::FontSizes::BodyLarge);
-    m_gameName.setFillColor(Theme::Colors::TextWhite());
-}
-
-void GameCard::setFont(const sf::Font& font) {
-    m_gameName.setFont(font);
 }
 
 bool GameCard::handleEvent(const sf::Event& event) {
-    m_clickedThisFrame = false;
-
-    if (event.type == sf::Event::MouseButtonPressed) {
-        if (event.mouseButton.button == sf::Mouse::Left &&
-            contains(sf::Vector2f(static_cast<float>(event.mouseButton.x),
-                                static_cast<float>(event.mouseButton.y)))) {
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+        const sf::Vector2f point(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y));
+        if (contains(point)) {
             m_selected = true;
-            m_clickedThisFrame = true;
             return true;
         }
     }
-
     return false;
 }
 
 void GameCard::update(float deltaTime, const sf::Vector2f& mousePosition) {
     m_hovered = contains(mousePosition);
-
-    // Smooth hover animation
-    if (m_hovered) {
-        m_hoverAnimation = std::min(1.f, m_hoverAnimation + deltaTime / Theme::Effects::HoverAnimationDuration);
-    } else {
-        m_hoverAnimation = std::max(0.f, m_hoverAnimation - deltaTime / Theme::Effects::HoverAnimationDuration);
-    }
+    const float step = deltaTime / Theme::Effects::HoverAnimationDuration;
+    m_hoverAmount = std::clamp(m_hoverAmount + (m_hovered ? step : -step), 0.f, 1.f);
 }
 
 void GameCard::draw(sf::RenderTarget& target) {
-    // Background color based on state
-    sf::Color bgColor = Theme::Colors::LightBg();
-    sf::Color borderColor = sf::Color::Transparent;
-    float borderWidth = 0.f;
+    const float radius = Theme::Effects::CornerRadius;
+    const sf::Color green = Theme::Colors::GreenBright();
 
     if (m_selected) {
-        bgColor = Theme::Colors::MediumBg();
-        borderColor = Theme::Colors::PrimaryGreen();
-        borderWidth = 2.f;
-    } else if (m_hovered) {
-        bgColor = Theme::lighten(Theme::Colors::LightBg());
-        borderColor = Theme::Colors::AccentYellow();
-        borderWidth = 1.5f;
+        DrawingUtilities::drawGlow(target, m_position, m_size, radius, Theme::withAlpha(green, 200), 8.f);
+        DrawingUtilities::drawGradientRoundedRectangle(
+            target, m_position, m_size, radius, sf::Color(0x22, 0x46, 0x1E, 0xE6), sf::Color(0x10, 0x26, 0x14, 0xE6)
+        );
+        DrawingUtilities::drawRoundedRectangle(target, m_position, m_size, radius, sf::Color::Transparent, green, 2.f);
+    } else {
+        const sf::Color border = Theme::mix(Theme::Colors::PanelBorder(), Theme::withAlpha(Theme::Colors::BlueBright(), 200), m_hoverAmount);
+        DrawingUtilities::drawGradientRoundedRectangle(
+            target, m_position, m_size, radius, sf::Color(0x16, 0x26, 0x44, 0xE6), sf::Color(0x0B, 0x15, 0x2C, 0xE6)
+        );
+        DrawingUtilities::drawRoundedRectangle(target, m_position, m_size, radius, sf::Color::Transparent, border, 1.f);
     }
 
-    // Draw card background
-    DrawingUtilities::drawRoundedRectangle(
-        target,
-        m_position,
-        m_size,
-        Theme::Effects::CornerRadius,
-        bgColor,
-        borderColor,
-        borderWidth
-    );
+    const float iconSize = 38.f;
+    const sf::Vector2f iconCenter(m_position.x + 12.f + iconSize / 2.f, m_position.y + m_size.y / 2.f);
+    DrawingUtilities::drawIcon(target, m_icon, iconCenter, iconSize, m_iconColor);
 
-    // Draw icon (centered)
-    DrawingUtilities::drawIcon(
-        target,
-        m_gameIcon,
-        sf::Vector2f(m_position.x + m_size.x / 2.f, m_position.y + m_size.y / 3.f + 4.f),
-        48.f,
-        Theme::Colors::PrimaryGreen()
-    );
-
-    // Draw name (below icon)
-    auto nameBounds = m_gameName.getLocalBounds();
-    m_gameName.setOrigin(nameBounds.width / 2.f, nameBounds.height / 2.f);
-    m_gameName.setPosition(
-        m_position.x + m_size.x / 2.f,
-        m_position.y + m_size.y - 35.f
-    );
-    target.draw(m_gameName);
+    const sf::FloatRect bounds = m_name.getLocalBounds();
+    m_name.setOrigin(bounds.left, bounds.top + bounds.height / 2.f);
+    m_name.setPosition(iconCenter.x + iconSize / 2.f + 10.f, iconCenter.y);
+    m_name.setFillColor(m_selected ? sf::Color(0xC5, 0xF5, 0x9A) : Theme::Colors::TextWhite());
+    target.draw(m_name);
 }

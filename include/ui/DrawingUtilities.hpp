@@ -1,54 +1,37 @@
 #pragma once
 
 #include <vector>
-#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/ConvexShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Color.hpp>
 
 #include "Theme.hpp"
 
 /**
  * @class DrawingUtilities
- * @brief Helper functions for drawing common UI shapes with visual polish
+ * @brief Immediate-mode helpers for the shapes, effects and icons the UI uses.
  */
 class DrawingUtilities {
 public:
-    // Shape-drawn icons; the bundled font has no emoji or symbol glyphs
+    // Shape-drawn icons; the bundled fonts have no emoji or symbol glyphs
     enum class Icon {
         None,
-        Blocks,  // Tetris
-        Paddle,  // Breakout
-        Gear,    // Settings
+        Home,
+        Gamepad,
+        Stats,
+        Trophy,
+        Gear,
         Music,
-        Speaker
+        Speaker,
+        Play,
+        Pause,
+        Restart,
+        Menu,
+        Blocks,  // Tetris
+        Paddle   // Breakout
     };
 
-    /**
-     * Draw an icon centered on a point
-     * @param center Icon center
-     * @param size Edge length of the square the icon fits in
-     */
-    static void drawIcon(
-        sf::RenderTarget& target,
-        Icon icon,
-        const sf::Vector2f& center,
-        float size,
-        const sf::Color& color
-    );
-
-    /**
-     * Draw a rounded rectangle
-     * @param target Render target
-     * @param position Top-left corner
-     * @param size Width and height
-     * @param radius Corner radius
-     * @param fillColor Fill color
-     * @param outlineColor Outline color
-     * @param outlineThickness Outline thickness
-     */
     static void drawRoundedRectangle(
         sf::RenderTarget& target,
         const sf::Vector2f& position,
@@ -59,43 +42,100 @@ public:
         float outlineThickness = 0.f
     );
 
-    /**
-     * Draw a glass panel with glow effect
-     * @param target Render target
-     * @param position Top-left corner
-     * @param size Width and height
-     * @param glassColor Semi-transparent base color
-     * @param glowColor Border glow color
-     */
+    // Rounded rectangle whose fill fades from top to bottom
+    static void drawGradientRoundedRectangle(
+        sf::RenderTarget& target,
+        const sf::Vector2f& position,
+        const sf::Vector2f& size,
+        float radius,
+        const sf::Color& topColor,
+        const sf::Color& bottomColor
+    );
+
+    // Soft halo approximated with concentric outlines of falling alpha
+    static void drawGlow(
+        sf::RenderTarget& target,
+        const sf::Vector2f& position,
+        const sf::Vector2f& size,
+        float radius,
+        const sf::Color& color,
+        float spread = 10.f
+    );
+
+    // Dark glass panel with drop shadow and hairline border
     static void drawGlassPanel(
         sf::RenderTarget& target,
         const sf::Vector2f& position,
         const sf::Vector2f& size,
-        const sf::Color& glassColor = Theme::Colors::GlassBase(),
-        const sf::Color& glowColor = Theme::Colors::GlassBorder()
+        float radius = Theme::Effects::PanelRadius,
+        const sf::Color& fillColor = Theme::Colors::PanelBg(),
+        const sf::Color& borderColor = Theme::Colors::PanelBorder()
     );
 
-    /**
-     * Draw a shadow underneath a shape
-     * @param target Render target
-     * @param position Top-left corner of the shape
-     * @param size Size of the shape
-     * @param offset Shadow offset (typically positive for bottom-right)
-     * @param blur Shadow blur radius
-     */
+    // Light frosted panel with top highlight
+    static void drawFrostedPanel(
+        sf::RenderTarget& target,
+        const sf::Vector2f& position,
+        const sf::Vector2f& size,
+        float radius = Theme::Effects::StageRadius
+    );
+
     static void drawShadow(
         sf::RenderTarget& target,
         const sf::Vector2f& position,
         const sf::Vector2f& size,
-        const sf::Vector2f& offset = sf::Vector2f(4.f, 4.f),
-        float blur = 2.f,
-        const sf::Color& shadowColor = sf::Color(0, 0, 0, 80)
+        float radius,
+        const sf::Vector2f& offset = sf::Vector2f(0.f, 6.f),
+        const sf::Color& shadowColor = sf::Color(0, 0, 0, 70)
+    );
+
+    // Beveled, glossy Tetris cell
+    static void drawBlock(
+        sf::RenderTarget& target,
+        const sf::Vector2f& position,
+        float size,
+        const sf::Color& color
+    );
+
+    static void drawLine(
+        sf::RenderTarget& target,
+        const sf::Vector2f& from,
+        const sf::Vector2f& to,
+        float thickness,
+        const sf::Color& color
+    );
+
+    static void drawArc(
+        sf::RenderTarget& target,
+        const sf::Vector2f& center,
+        float radius,
+        float startDegrees,
+        float endDegrees,
+        float thickness,
+        const sf::Color& color
     );
 
     /**
-     * Create a rounded rectangle shape
-     * (Approximate using convex shape with enough segments)
+     * Draw an icon centered on a point
+     * @param size Edge length of the square the icon fits in
+     * @param cutoutColor Fill for holes in solid icons (gear center)
      */
+    static void drawIcon(
+        sf::RenderTarget& target,
+        Icon icon,
+        const sf::Vector2f& center,
+        float size,
+        const sf::Color& color,
+        const sf::Color& cutoutColor = Theme::Colors::NavBg()
+    );
+
+    static std::vector<sf::Vector2f> roundedRectanglePoints(
+        const sf::Vector2f& position,
+        const sf::Vector2f& size,
+        float radius,
+        unsigned int cornerSegments = 8
+    );
+
     static sf::ConvexShape createRoundedRectangle(
         const sf::Vector2f& position,
         const sf::Vector2f& size,

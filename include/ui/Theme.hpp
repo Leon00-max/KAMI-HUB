@@ -2,139 +2,139 @@
 
 #include <algorithm>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
 
 /**
  * @class Theme
- * @brief Centralized theme system defining all colors, spacing, typography, and visual properties.
+ * @brief Centralized theme: colors, typography, layout and effect constants.
  *
- * This system ensures visual consistency across the entire application and makes it trivial
- * to modify the appearance by changing values in one place.
+ * Values follow the KAMI Hub concept design (nature background, glassmorphism
+ * panels, glossy neon-accented buttons). Layout is in logical pixels of the
+ * fixed 1280x720 view; the window letterboxes it on resize.
  */
 class Theme {
 public:
     // ==================== COLOR PALETTE ====================
-    // Primary Colors - from reference image
     struct Colors {
-        // Neon Green - Primary accent
-        static sf::Color PrimaryGreen() { return sf::Color(0x6D, 0xF9, 0x50, 0xFF); }
+        // Core palette from the design system
+        static sf::Color Green() { return sf::Color(0x4C, 0xAF, 0x50); }        // #4CAF50
+        static sf::Color GreenBright() { return sf::Color(0x7E, 0xD9, 0x3A); }  // Neon accent
+        static sf::Color Blue() { return sf::Color(0x21, 0x96, 0xF3); }         // #2196F3
+        static sf::Color BlueBright() { return sf::Color(0x29, 0xB6, 0xF6); }   // #29B6F6
+        static sf::Color Yellow() { return sf::Color(0xFF, 0xC1, 0x07); }       // #FFC107
+        static sf::Color Amber() { return sf::Color(0xFF, 0xB3, 0x00); }        // #FFB300
+        static sf::Color Orange() { return sf::Color(0xFF, 0x8F, 0x00); }
+        static sf::Color Red() { return sf::Color(0xF4, 0x43, 0x36); }          // #F44336
+        static sf::Color Purple() { return sf::Color(0x9C, 0x27, 0xB0); }       // #9C27B0
+        static sf::Color PurpleBright() { return sf::Color(0xB3, 0x6B, 0xF0); }
 
-        // Deep Blues - Background and structure
-        static sf::Color DarkBg() { return sf::Color(0x0A, 0x0C, 0x18, 0xFF); }       // Main background
-        static sf::Color MediumBg() { return sf::Color(0x14, 0x18, 0x30, 0xFF); }     // Panel background
-        static sf::Color LightBg() { return sf::Color(0x1E, 0x24, 0x3E, 0xFF); }      // Lighter panels
+        // Neutrals
+        static sf::Color TextWhite() { return sf::Color(0xFF, 0xFF, 0xFF); }    // #FFFFFF
+        static sf::Color TextGray() { return sf::Color(0xE0, 0xE0, 0xE0); }     // #E0E0E0
+        static sf::Color TextDarkGray() { return sf::Color(0xBD, 0xBD, 0xBD); } // #BDBDBD
+        static sf::Color Charcoal() { return sf::Color(0x21, 0x21, 0x21); }     // #212121
 
-        // Glass effect - Semi-transparent
-        static sf::Color GlassBase() { return sf::Color(0x14, 0x18, 0x30, 0xAA); }    // 2/3 opacity
-        static sf::Color GlassBorder() { return sf::Color(0x7D, 0x96, 0xFF, 0xB4); }  // Light blue glow
+        // Surfaces
+        static sf::Color NavBg() { return sf::Color(0x06, 0x0D, 0x1F, 0xEB); }
+        static sf::Color PanelBg() { return sf::Color(0x0A, 0x14, 0x28, 0xD9); }      // Dark glass
+        static sf::Color PanelBorder() { return sf::Color(0x8C, 0xB4, 0xE6, 0x55); }
+        static sf::Color FrostTop() { return sf::Color(0x5A, 0x78, 0x9A, 0x70); }     // Light glass
+        static sf::Color FrostBottom() { return sf::Color(0x1E, 0x32, 0x50, 0x8C); }
+        static sf::Color FrostBorder() { return sf::Color(0xFF, 0xFF, 0xFF, 0x60); }
+        static sf::Color BoardBg() { return sf::Color(0x07, 0x0E, 0x1C, 0xF2); }
+        static sf::Color BoardGrid() { return sf::Color(0x50, 0x6E, 0x96, 0x40); }
+        static sf::Color Divider() { return sf::Color(0xFF, 0xFF, 0xFF, 0x22); }
 
-        // Accent Colors
-        static sf::Color AccentYellow() { return sf::Color(0xFF, 0xC1, 0x07, 0xFF); } // #FFC107
-        static sf::Color AccentRed() { return sf::Color(0xFF, 0x6B, 0x6B, 0xFF); }    // #FF6B6B
-        static sf::Color AccentOrange() { return sf::Color(0xFF, 0xA5, 0x3D, 0xFF); } // #FFA53D
-        static sf::Color AccentPurple() { return sf::Color(0xB8, 0x5B, 0xDB, 0xFF); } // #B85BDB
-
-        // Neutral Grays
-        static sf::Color TextWhite() { return sf::Color(0xFF, 0xFF, 0xFF, 0xFF); }    // Pure white
-        static sf::Color TextGray() { return sf::Color(0xCC, 0xD8, 0xF8, 0xFF); }     // Light gray-blue
-        static sf::Color TextDarkGray() { return sf::Color(0x8C, 0xA2, 0xBC, 0xFF); } // Medium gray
-
-        // Button states
-        static sf::Color ButtonDefault() { return sf::Color(0x35, 0x61, 0xA2, 0xE6); }   // Muted blue
-        static sf::Color ButtonHover() { return sf::Color(0x53, 0x89, 0xE2, 0xF0); }     // Bright blue
-        static sf::Color ButtonPressed() { return sf::Color(0x12, 0x3A, 0x70, 0xFF); }   // Dark blue
-        static sf::Color ButtonDisabled() { return sf::Color(0x28, 0x32, 0x52, 0x99); }  // Gray-blue, 60% opacity
-    };
-
-    // ==================== SPACING & LAYOUT ====================
-    struct Spacing {
-        static constexpr float XSmall = 4.f;
-        static constexpr float Small = 8.f;
-        static constexpr float Medium = 16.f;
-        static constexpr float Large = 24.f;
-        static constexpr float XLarge = 32.f;
-        static constexpr float XXLarge = 48.f;
-
-        // Padding for panels and containers
-        static constexpr float PanelPadding = 20.f;
-        static constexpr float ButtonPadding = 12.f;
+        // Legacy names used by older components
+        static sf::Color PrimaryGreen() { return GreenBright(); }
+        static sf::Color DarkBg() { return sf::Color(0x0A, 0x0C, 0x18); }
+        static sf::Color MediumBg() { return sf::Color(0x14, 0x18, 0x30); }
+        static sf::Color LightBg() { return sf::Color(0x1E, 0x24, 0x3E); }
+        static sf::Color GlassBase() { return PanelBg(); }
+        static sf::Color GlassBorder() { return PanelBorder(); }
+        static sf::Color AccentYellow() { return Yellow(); }
+        static sf::Color AccentRed() { return Red(); }
+        static sf::Color AccentOrange() { return Orange(); }
+        static sf::Color AccentPurple() { return Purple(); }
     };
 
     // ==================== TYPOGRAPHY ====================
-    struct Typography {
-        // Font names (files in assets/fonts/)
-        static constexpr const char* FontMain = "main";           // Regular font
-        static constexpr const char* FontBold = "main_bold";      // Bold variant
-
-        // Font sizes
-        struct FontSizes {
-            static constexpr unsigned int Heading1 = 48;          // Main title
-            static constexpr unsigned int Heading2 = 32;          // Section titles
-            static constexpr unsigned int Heading3 = 24;          // Subsection titles
-            static constexpr unsigned int BodyLarge = 20;         // Large body text
-            static constexpr unsigned int Body = 16;              // Standard body
-            static constexpr unsigned int BodySmall = 14;         // Small text
-            static constexpr unsigned int Label = 12;             // Labels and captions
-            static constexpr unsigned int Button = 18;            // Button text
-            static constexpr unsigned int NavItem = 16;           // Navigation items
-        };
+    struct Fonts {
+        static constexpr const char* Display = "display";     // Orbitron Bold (headers)
+        static constexpr const char* Regular = "regular";     // Exo 2 Regular (body)
+        static constexpr const char* SemiBold = "semibold";   // Exo 2 SemiBold (subheaders)
+        static constexpr const char* Bold = "bold";           // Exo 2 Bold (UI / buttons)
     };
 
-    // ==================== COMPONENT SIZES ====================
-    struct Sizes {
-        // Navigation bar
-        static constexpr float NavBarHeight = 70.f;
+    struct FontSizes {
+        static constexpr unsigned int Logo = 22;
+        static constexpr unsigned int LogoSub = 11;
+        static constexpr unsigned int NavItem = 14;
+        static constexpr unsigned int PanelTitle = 13;
+        static constexpr unsigned int StatLabel = 13;
+        static constexpr unsigned int StatValue = 21;
+        static constexpr unsigned int Button = 15;
+        static constexpr unsigned int CardLabel = 13;
+    };
 
-        // Game board / Glass panel
-        static constexpr float GameBoardWidth = 250.f;
-        static constexpr float GameBoardHeight = 500.f;
-        static constexpr int GameBoardColumns = 10;
-        static constexpr int GameBoardRows = 20;
+    // ==================== LAYOUT (logical 1280x720) ====================
+    struct Layout {
+        static constexpr float WindowWidth = 1280.f;
+        static constexpr float WindowHeight = 720.f;
 
-        // Side panels
-        static constexpr float SidePanelWidth = 220.f;
-        static constexpr float SidePanelHeight = 510.f;
+        static constexpr float NavBarHeight = 78.f;
 
-        // Game cards
-        static constexpr float GameCardWidth = 188.f;
-        static constexpr float GameCardHeight = 140.f;
+        // Game mode selector
+        static constexpr float ModePanelX = 262.f;
+        static constexpr float ModePanelY = 202.f;
+        static constexpr float ModePanelWidth = 150.f;
+        static constexpr float ModePanelHeight = 200.f;
 
-        // Standard button
-        static constexpr float ButtonWidth = 140.f;
-        static constexpr float ButtonHeight = 48.f;
+        // Frosted container holding board, preview, stats and pause
+        static constexpr float StageX = 431.f;
+        static constexpr float StageY = 92.f;
+        static constexpr float StageWidth = 467.f;
+        static constexpr float StageHeight = 473.f;
 
-        // Small button
-        static constexpr float SmallButtonWidth = 100.f;
-        static constexpr float SmallButtonHeight = 36.f;
+        // Tetris board (10x20 cells)
+        static constexpr int BoardColumns = 10;
+        static constexpr int BoardRows = 20;
+        static constexpr float CellSize = 21.f;
+        static constexpr float BoardPadding = 12.f;
+        static constexpr float BoardX = 505.f;
+        static constexpr float BoardY = 105.f;
+
+        // Right column inside the stage
+        static constexpr float SideX = 758.f;
+        static constexpr float SideWidth = 126.f;
+        static constexpr float NextY = 116.f;
+        static constexpr float NextHeight = 100.f;
+        static constexpr float StatsY = 226.f;
+        static constexpr float StatsHeight = 246.f;
+        static constexpr float SidePauseY = 487.f;
+        static constexpr float SidePauseHeight = 50.f;
+
+        // Bottom action buttons
+        static constexpr float ActionY = 580.f;
+        static constexpr float ActionHeight = 48.f;
+        static constexpr float ActionGap = 13.f;
     };
 
     // ==================== EFFECTS ====================
     struct Effects {
-        // Border radius / corner rounding (approximated with lines for SFML)
-        static constexpr float CornerRadius = 8.f;
-
-        // Glow effect thickness
-        static constexpr float GlowThickness = 2.f;
-
-        // Shadow offset
-        static constexpr float ShadowOffset = 4.f;
-
-        // Animation timings (in seconds)
+        static constexpr float CornerRadius = 10.f;
+        static constexpr float PanelRadius = 12.f;
+        static constexpr float StageRadius = 16.f;
+        static constexpr float HoverScale = 1.05f;
         static constexpr float HoverAnimationDuration = 0.15f;
         static constexpr float ButtonPressAnimationDuration = 0.1f;
-        static constexpr float PanelFadeInDuration = 0.3f;
     };
 
-    // ==================== HELPER METHODS ====================
-    /**
-     * Get a color with modified opacity
-     */
+    // ==================== HELPERS ====================
     static sf::Color withAlpha(const sf::Color& color, sf::Uint8 alpha) {
         return sf::Color(color.r, color.g, color.b, alpha);
     }
 
-    /**
-     * Get a darker shade of a color
-     */
     static sf::Color darken(const sf::Color& color, float factor = 0.7f) {
         return sf::Color(
             static_cast<sf::Uint8>(color.r * factor),
@@ -144,9 +144,6 @@ public:
         );
     }
 
-    /**
-     * Get a lighter shade of a color
-     */
     static sf::Color lighten(const sf::Color& color, float factor = 1.3f) {
         return sf::Color(
             static_cast<sf::Uint8>(std::min(255.f, color.r * factor)),
@@ -154,5 +151,18 @@ public:
             static_cast<sf::Uint8>(std::min(255.f, color.b * factor)),
             color.a
         );
+    }
+
+    static sf::Color mix(const sf::Color& a, const sf::Color& b, float t) {
+        auto lerp = [t](sf::Uint8 x, sf::Uint8 y) {
+            return static_cast<sf::Uint8>(x + (static_cast<float>(y) - x) * t);
+        };
+        return sf::Color(lerp(a.r, b.r), lerp(a.g, b.g), lerp(a.b, b.b), lerp(a.a, b.a));
+    }
+
+    // Desaturate toward gray and fade, for disabled controls
+    static sf::Color muted(const sf::Color& color) {
+        const auto gray = static_cast<sf::Uint8>((color.r + color.g + color.b) / 3);
+        return withAlpha(mix(color, sf::Color(gray, gray, gray), 0.75f), static_cast<sf::Uint8>(color.a * 0.55f));
     }
 };

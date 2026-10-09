@@ -52,6 +52,12 @@ This repository was verified with Visual Studio Build Tools 2019, CMake, and Nin
    .\build\arcade_hub.exe
    ```
 
+## Design preview
+`arcade_hub --preview` fills the board, next piece and stats with a sample mid-game state so the screen can be compared against the concept art. A normal launch shows the empty hub.
+
+## Third-party assets
+- Orbitron and Exo 2 fonts: SIL Open Font License 1.1 (`assets/fonts/OFL-*.txt`).
+
 ## Architecture overview
 - `include/core` contains the core application shell.
 - `include/managers` holds centralized asset and resource access.

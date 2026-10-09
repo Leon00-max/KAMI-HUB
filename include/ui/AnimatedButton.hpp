@@ -15,70 +15,68 @@
 
 /**
  * @class AnimatedButton
- * @brief Professional button with smooth hover/press animations and state feedback
+ * @brief Glossy button with icon, label, glow and hover/press animation
  */
 class AnimatedButton : public UIComponent {
 public:
     enum class ButtonStyle {
-        Primary,   // Bright accent (green, yellow, red)
-        Secondary, // Muted blue
-        Tertiary   // Dark background
+        Green,
+        Orange,
+        Red,
+        Purple,
+        Blue,
+        Round   // Circular outlined icon button (navigation bar)
     };
-
-    AnimatedButton();
 
     AnimatedButton(
         const sf::Vector2f& position,
         const sf::Vector2f& size,
         const std::string& label,
         const sf::Font& font,
-        ButtonStyle style = ButtonStyle::Secondary,
+        ButtonStyle style = ButtonStyle::Blue,
+        DrawingUtilities::Icon icon = DrawingUtilities::Icon::None,
         std::function<void()> onClick = nullptr
     );
 
     // Configuration
     void setLabel(const std::string& label);
-    void setFont(const sf::Font& font);
     void setStyle(ButtonStyle style);
-    void setColors(const sf::Color& idle, const sf::Color& hover, const sf::Color& pressed);
-    void setEnabled(bool enabled);
     void setIcon(DrawingUtilities::Icon icon) { m_icon = icon; }
-    void setCallback(std::function<void()> onClick) { m_onClick = onClick; }
+    void setEnabled(bool enabled);
+    void setCallback(std::function<void()> onClick) { m_onClick = std::move(onClick); }
 
-    // Input handling
+    // Returns true when a click completes on this button
     bool handleEvent(const sf::Event& event);
 
-    // Update with mouse position for hover detection
     void update(float deltaTime, const sf::Vector2f& mousePosition);
-
-    // Drawing
     void draw(sf::RenderTarget& target) override;
 
-    // State queries
+    // Width that fits the icon and label with standard padding
+    float preferredWidth() const;
+
     bool isHovered() const { return m_hovered; }
     bool isPressed() const { return m_pressed; }
     bool isEnabled() const { return m_enabled; }
 
 private:
-    void updateColors();
+    struct Palette {
+        sf::Color top;
+        sf::Color bottom;
+        sf::Color border;
+    };
 
-    // Text
+    Palette currentPalette() const;
+
     sf::Text m_text;
+    ButtonStyle m_style = ButtonStyle::Blue;
     DrawingUtilities::Icon m_icon = DrawingUtilities::Icon::None;
+    Palette m_palette;
 
-    // Colors
-    sf::Color m_idleColor;
-    sf::Color m_hoverColor;
-    sf::Color m_pressedColor;
-
-    // State
     bool m_hovered = false;
     bool m_pressed = false;
     bool m_enabled = true;
-    float m_hoverScale = 1.f; // Current scale during hover animation
-    float m_pressScale = 1.f; // Current scale during press animation
-    float m_animationTime = 0.f;
+    float m_hoverAmount = 0.f; // 0..1 eased hover progress
+    float m_pressAmount = 0.f; // 0..1 eased press progress
 
-    // Callbacks
     std::function<void()> m_onClick;
 };

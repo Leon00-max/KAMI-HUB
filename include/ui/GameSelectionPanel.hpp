@@ -2,37 +2,31 @@
 
 #include <vector>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "UIComponent.hpp"
+#include "managers/ResourceManager.hpp"
 #include "GameCard.hpp"
 #include "Theme.hpp"
+#include "UIComponent.hpp"
 
 /**
  * @class GameSelectionPanel
- * @brief Left-side panel with game selection cards (Tetris, Breakout)
+ * @brief "Game mode" panel with one card per game (Tetris, Breakout)
  */
 class GameSelectionPanel : public UIComponent {
 public:
-    GameSelectionPanel(const sf::Font& font);
+    explicit GameSelectionPanel(const ResourceManager& resources);
 
-    // Input handling
     bool handleEvent(const sf::Event& event);
-
-    // Update with mouse position
     void update(float deltaTime, const sf::Vector2f& mousePosition);
-
-    // Drawing
     void draw(sf::RenderTarget& target) override;
 
-    // Query selected game
     int getSelectedGameIndex() const { return m_selectedGameIndex; }
 
 private:
-    const sf::Font& m_font;
+    sf::Text m_title;
     std::vector<GameCard> m_gameCards;
-    int m_selectedGameIndex = 0; // Default to Tetris
-
-    void initializeGameCards();
+    int m_selectedGameIndex = 0;
 };

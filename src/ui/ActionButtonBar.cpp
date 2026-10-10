@@ -1,85 +1,81 @@
 #include "ui/ActionButtonBar.hpp"
 
-#include "ui/DrawingUtilities.hpp"
+#include <algorithm>
 
-ActionButtonBar::ActionButtonBar(const sf::Font& font)
-    : m_font(font) {
-    setPosition(sf::Vector2f(0.f, 620.f));
-    setSize(sf::Vector2f(1280.f, 100.f));
-    initializeButtons();
+namespace {
+constexpr float MinButtonWidth = 94.f;
 }
 
-void ActionButtonBar::setWindowWidth(float width) {
-    m_windowWidth = width;
-    setSize(sf::Vector2f(width, 100.f));
-    initializeButtons();
-}
-
-void ActionButtonBar::initializeButtons() {
-    m_buttons.clear();
-    m_buttonTypes.clear();
-
-    const std::vector<std::string> labels = {"PLAY", "PAUSE", "RESTART", "MENU", "SETTINGS"};
-    const std::vector<ButtonType> types = {ButtonType::Play, ButtonType::Pause, ButtonType::Restart, ButtonType::Menu, ButtonType::Settings};
-    const std::vector<AnimatedButton::ButtonStyle> styles = {
-        AnimatedButton::ButtonStyle::Primary,  // Play - Green
-        AnimatedButton::ButtonStyle::Primary,  // Pause - Yellow
-        AnimatedButton::ButtonStyle::Primary,  // Restart - Red
-        AnimatedButton::ButtonStyle::Secondary, // Menu - Blue
-        AnimatedButton::ButtonStyle::Tertiary   // Settings - Dark
+ActionButtonBar::ActionButtonBar(const ResourceManager& resources) {
+    const struct {
+        const char* label;
+        const char* widestLabel; // Longest label the button can switch to
+        AnimatedButton::ButtonStyle style;
+        DrawingUtilities::Icon icon;
+    } specs[] = {
+        {"PLAY", "PLAY", AnimatedButton::ButtonStyle::Green, DrawingUtilities::Icon::Play},
+        {"PAUSE", "RESUME", AnimatedButton::ButtonStyle::Orange, DrawingUtilities::Icon::Pause},
+        {"RESTART", "RESTART", AnimatedButton::ButtonStyle::Red, DrawingUtilities::Icon::Restart},
+        {"MENU", "MENU", AnimatedButton::ButtonStyle::Purple, DrawingUtilities::Icon::Menu},
+        {"SETTINGS", "SETTINGS", AnimatedButton::ButtonStyle::Blue, DrawingUtilities::Icon::Gear},
     };
 
-    const float centerX = m_windowWidth / 2.f;
-    const float totalWidth = 5 * Theme::Sizes::ButtonWidth + 4 * Theme::Spacing::Large;
-    const float startX = (centerX - totalWidth / 2.f);
-    const float buttonY = m_position.y + 20.f;
+    const sf::Font& font = resources.getFont(Theme::Fonts::Bold);
+    const float y = Theme::Layout::ActionY;
+    const float height = Theme::Layout::ActionHeight;
 
-    for (size_t i = 0; i < labels.size(); ++i) {
-        m_buttons.emplace_back(
-            sf::Vector2f(startX + i * (Theme::Sizes::ButtonWidth + Theme::Spacing::Large), buttonY),
-            sf::Vector2f(Theme::Sizes::ButtonWidth, Theme::Sizes::ButtonHeight),
-            labels[i],
-            m_font,
-            styles[i]
-        );
-        m_buttonTypes.push_back(types[i]);
+    // Build at the origin to measure, then lay out centered
+    std::vector<float> widths;
+    for (const auto& spec : specs) {
+        m_buttons.emplace_back(sf::Vector2f(0.f, y), sf::Vector2f(MinButtonWidth, height), spec.widestLabel, font, spec.style, spec.icon);
+        widths.push_back(std::max(MinButtonWidth, m_buttons.back().preferredWidth()));
+        m_buttons.back().setLabel(spec.label);
     }
+
+    float total = Theme::Layout::ActionGap * (widths.size() - 1);
+    for (float width : widths) {
+        total += width;
+    }
+
+    float x = (Theme::Layout::WindowWidth - total) / 2.f;
+    for (std::size_t i = 0; i < m_buttons.size(); ++i) {
+        m_buttons[i].setPosition(sf::Vector2f(x, y));
+        m_buttons[i].setSize(sf::Vector2f(widths[i], height));
+        x += widths[i] + Theme::Layout::ActionGap;
+    }
+
+    setPosition(m_buttons.front().getPosition());
+    setSize(sf::Vector2f(total, height));
+}
+
+void ActionButtonBar::setButtonEnabled(ButtonType type, bool enabled) {
+    m_buttons[static_cast<std::size_t>(type)].setEnabled(enabled);
+}
+
+void ActionButtonBar::setButtonLabel(ButtonType type, const std::string& label) {
+    m_buttons[static_cast<std::size_t>(type)].setLabel(label);
 }
 
 bool ActionButtonBar::handleEvent(const sf::Event& event) {
     m_clickedButtonIndex = -1;
     bool handled = false;
-
-    for (size_t i = 0; i < m_buttons.size(); ++i) {
+    for (std::size_t i = 0; i < m_buttons.size(); ++i) {
         if (m_buttons[i].handleEvent(event)) {
             m_clickedButtonIndex = static_cast<int>(i);
             handled = true;
         }
     }
-
     return handled;
 }
 
 void ActionButtonBar::update(float deltaTime, const sf::Vector2f& mousePosition) {
-    for (auto& btn : m_buttons) {
-        btn.update(deltaTime, mousePosition);
+    for (auto& button : m_buttons) {
+        button.update(deltaTime, mousePosition);
     }
 }
 
 void ActionButtonBar::draw(sf::RenderTarget& target) {
-    // Draw background
-    DrawingUtilities::drawRoundedRectangle(
-        target,
-        m_position,
-        sf::Vector2f(m_windowWidth, m_size.y),
-        0.f,
-        Theme::Colors::MediumBg(),
-        Theme::Colors::GlassBorder(),
-        1.f
-    );
-
-    // Draw buttons
-    for (auto& btn : m_buttons) {
-        btn.draw(target);
+    for (auto& button : m_buttons) {
+        button.draw(target);
     }
 }

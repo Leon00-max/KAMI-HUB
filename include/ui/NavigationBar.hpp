@@ -1,47 +1,50 @@
 #pragma once
 
 #include <vector>
-#include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "UIComponent.hpp"
-#include "Theme.hpp"
+#include "managers/ResourceManager.hpp"
 #include "AnimatedButton.hpp"
+#include "DrawingUtilities.hpp"
+#include "Theme.hpp"
+#include "UIComponent.hpp"
 
 /**
  * @class NavigationBar
- * @brief Top navigation bar with logo, nav items, and control buttons
- * Shows: ARCADE HUB logo | Home | Games | Statistics | Achievements | (...spacer...) | Settings | Music | Sound
+ * @brief Top bar: logo | Home, Games, Stats, Achievements | Settings, Music, Sound
  */
 class NavigationBar : public UIComponent {
 public:
-    NavigationBar(const sf::Font& font);
+    explicit NavigationBar(const ResourceManager& resources);
 
-    // Set window width for layout calculations
-    void setWindowWidth(float width);
-
-    // Input handling
     bool handleEvent(const sf::Event& event);
-
-    // Update (for button animations)
     void update(float deltaTime, const sf::Vector2f& mousePosition);
-
-    // Drawing
     void draw(sf::RenderTarget& target) override;
 
-    // Query which nav item was clicked (returns index or -1)
+    // Results of the last handleEvent: nav item / control button index, or -1
     int getClickedNavItem() const { return m_clickedNavItem; }
+    int getClickedControl() const { return m_clickedControl; }
+    void setActiveNavItem(int index) { m_activeNavItem = index; }
 
 private:
-    const sf::Font& m_font;
-    std::vector<sf::Text> m_navItems;
-    std::vector<AnimatedButton> m_controlButtons; // Settings, Music, Sound icons
+    struct NavItem {
+        DrawingUtilities::Icon icon;
+        sf::Text label;
+        sf::FloatRect hitBox;
+        bool hovered = false;
+    };
 
-    float m_windowWidth = 1280.f;
+    sf::Text m_title;
+    sf::Text m_subtitle;
+    std::vector<NavItem> m_navItems;
+    std::vector<AnimatedButton> m_controlButtons; // Settings, Music, Sound
+
+    int m_activeNavItem = 0;
     int m_clickedNavItem = -1;
+    int m_clickedControl = -1;
 
-    void initializeNavItems();
-    void initializeControlButtons();
+    void drawLogo(sf::RenderTarget& target);
 };

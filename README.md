@@ -52,11 +52,39 @@ This repository was verified with Visual Studio Build Tools 2019, CMake, and Nin
    .\build\arcade_hub.exe
    ```
 
+## Playing Tetris
+Select **Tetris** in Game Mode and press **PLAY** (or Enter).
+
+| Key | Action |
+| --- | --- |
+| Left / Right (A / D) | Move |
+| Up (W, X) | Rotate clockwise |
+| Z (Left Ctrl) | Rotate counter-clockwise |
+| Down (S) | Soft drop |
+| Space | Hard drop |
+| P / Esc | Pause / resume |
+
+The game pauses automatically when the window loses focus.
+
+## Tests
+Game rules live in `tetris_core`, a library with no SFML dependency, and are covered by `tests/tetris_tests.cpp`:
+```bash
+ctest --test-dir build -C Release --output-on-failure
+```
+CI (`.github/workflows/build.yml`) builds and tests on Windows (MSVC) and Linux (GCC) for every pull request.
+
+## Design preview
+`arcade_hub --preview` fills the board, next piece and stats with a sample mid-game state so the screen can be compared against the concept art. A normal launch shows the empty hub.
+
+## Third-party assets
+- Orbitron and Exo 2 fonts: SIL Open Font License 1.1 (`assets/fonts/OFL-*.txt`).
+
 ## Architecture overview
 - `include/core` contains the core application shell.
 - `include/managers` holds centralized asset and resource access.
 - `include/scenes` is responsible for scene abstractions.
 - `include/ui` provides reusable UI primitives such as buttons.
+- `include/games` holds game rules, independent of rendering.
 - `src` mirrors the include tree with implementation files.
 - `assets/fonts`, `assets/images`, and `assets/icons` contain runtime assets loaded through `ResourceManager`.
 

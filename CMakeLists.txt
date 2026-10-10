@@ -24,6 +24,13 @@ if(NOT SFML_FOUND)
     FetchContent_MakeAvailable(SFML)
 endif()
 
+option(KAMI_BUILD_TESTS "Build unit tests" ON)
+
+# Game rules: no SFML dependency, so they build and test anywhere
+add_library(tetris_core STATIC src/games/tetris/Tetris.cpp)
+target_include_directories(tetris_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_features(tetris_core PUBLIC cxx_std_20)
+
 add_executable(arcade_hub
     src/main.cpp
     src/core/Application.cpp
@@ -34,6 +41,7 @@ add_executable(arcade_hub
     src/ui/AnimatedButton.cpp
     src/ui/NavigationBar.cpp
     src/ui/GameCard.cpp
+    src/ui/GameBoard.cpp
     src/ui/GameSelectionPanel.cpp
     src/ui/InfoPanel.cpp
     src/ui/GlassPanel.cpp
@@ -43,13 +51,31 @@ add_executable(arcade_hub
 target_include_directories(arcade_hub PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(arcade_hub PRIVATE cxx_std_20)
 
-if(MSVC)
-    target_compile_options(arcade_hub PRIVATE /W4 /permissive-)
-else()
-    target_compile_options(arcade_hub PRIVATE -Wall -Wextra -Wpedantic)
+foreach(target arcade_hub tetris_core)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /W4 /permissive-)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endforeach()
+
+# Copy assets next to the executable so it runs from any working directory
+add_custom_command(
+    TARGET arcade_hub
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:arcade_hub>/assets
+)
+
+if(KAMI_BUILD_TESTS)
+    enable_testing()
+    add_executable(tetris_tests tests/tetris_tests.cpp)
+    target_link_libraries(tetris_tests PRIVATE tetris_core)
+    add_test(NAME tetris_tests COMMAND tetris_tests)
 endif()
 
-target_link_libraries(arcade_hub PRIVATE sfml-graphics sfml-window sfml-system)
+target_link_libraries(arcade_hub PRIVATE tetris_core sfml-graphics sfml-window sfml-system)
 
 if(WIN32 AND SFML_FOUND AND DEFINED SFML_DIR)
     get_filename_component(SFML_ROOT "${SFML_DIR}/../../.." ABSOLUTE)

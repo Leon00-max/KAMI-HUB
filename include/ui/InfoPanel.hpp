@@ -27,12 +27,12 @@ public:
     // Cells of the upcoming piece in its own grid coordinates
     void setNextPiece(const std::vector<sf::Vector2i>& cells, const sf::Color& color);
     void setPauseEnabled(bool enabled) { m_pauseButton.setEnabled(enabled); }
+    void setPauseLabel(const std::string& label) { m_pauseButton.setLabel(label); }
 
+    // Returns true when the pause button was clicked
     bool handleEvent(const sf::Event& event);
     void update(float deltaTime, const sf::Vector2f& mousePosition);
     void draw(sf::RenderTarget& target) override;
-
-    bool wasPauseClicked() const { return m_pauseClicked; }
 
 private:
     struct Stat {
@@ -47,5 +47,4 @@ private:
     std::vector<sf::Vector2i> m_nextCells;
     sf::Color m_nextColor = sf::Color::Transparent;
     AnimatedButton m_pauseButton;
-    bool m_pauseClicked = false;
 };

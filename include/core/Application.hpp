@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -12,6 +13,7 @@ class Application {
 public:
     struct Options {
         bool preview = false; // Show sample game state for design review
+        std::filesystem::path assetRoot = "assets";
     };
 
     Application() : Application(Options{}) {}
@@ -31,6 +33,7 @@ private:
     // Rewrite mouse coordinates from window pixels to logical view units
     sf::Event toViewCoordinates(const sf::Event& event) const;
 
+    std::filesystem::path m_assetRoot;
     sf::RenderWindow m_window;
     ResourceManager m_resources;
     std::unique_ptr<Scene> m_scene;

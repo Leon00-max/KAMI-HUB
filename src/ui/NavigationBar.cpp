@@ -71,9 +71,14 @@ NavigationBar::NavigationBar(const ResourceManager& resources) {
 }
 
 bool NavigationBar::handleEvent(const sf::Event& event) {
+    m_clickedNavItem = -1;
+    m_clickedControl = -1;
     bool handled = false;
-    for (auto& button : m_controlButtons) {
-        handled = button.handleEvent(event) || handled;
+    for (std::size_t i = 0; i < m_controlButtons.size(); ++i) {
+        if (m_controlButtons[i].handleEvent(event)) {
+            m_clickedControl = static_cast<int>(i);
+            handled = true;
+        }
     }
 
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
@@ -89,7 +94,6 @@ bool NavigationBar::handleEvent(const sf::Event& event) {
 }
 
 void NavigationBar::update(float deltaTime, const sf::Vector2f& mousePosition) {
-    m_clickedNavItem = -1;
     for (auto& button : m_controlButtons) {
         button.update(deltaTime, mousePosition);
     }

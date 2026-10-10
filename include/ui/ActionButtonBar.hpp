@@ -27,12 +27,13 @@ public:
     explicit ActionButtonBar(const ResourceManager& resources);
 
     void setButtonEnabled(ButtonType type, bool enabled);
+    void setButtonLabel(ButtonType type, const std::string& label);
 
     bool handleEvent(const sf::Event& event);
     void update(float deltaTime, const sf::Vector2f& mousePosition);
     void draw(sf::RenderTarget& target) override;
 
-    // Index (ButtonType order) of the button clicked this frame, or -1
+    // Index (ButtonType order) of the button clicked by the last handleEvent, or -1
     int getClickedButtonIndex() const { return m_clickedButtonIndex; }
 
 private:

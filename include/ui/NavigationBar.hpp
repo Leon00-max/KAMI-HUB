@@ -24,8 +24,9 @@ public:
     void update(float deltaTime, const sf::Vector2f& mousePosition);
     void draw(sf::RenderTarget& target) override;
 
-    // Index of the nav item clicked this frame, or -1
+    // Results of the last handleEvent: nav item / control button index, or -1
     int getClickedNavItem() const { return m_clickedNavItem; }
+    int getClickedControl() const { return m_clickedControl; }
     void setActiveNavItem(int index) { m_activeNavItem = index; }
 
 private:
@@ -43,6 +44,7 @@ private:
 
     int m_activeNavItem = 0;
     int m_clickedNavItem = -1;
+    int m_clickedControl = -1;
 
     void drawLogo(sf::RenderTarget& target);
 };

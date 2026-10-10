@@ -94,12 +94,10 @@ void InfoPanel::setNextPiece(const std::vector<sf::Vector2i>& cells, const sf::C
 }
 
 bool InfoPanel::handleEvent(const sf::Event& event) {
-    m_pauseClicked = m_pauseButton.handleEvent(event) || m_pauseClicked;
-    return m_pauseClicked;
+    return m_pauseButton.handleEvent(event);
 }
 
 void InfoPanel::update(float deltaTime, const sf::Vector2f& mousePosition) {
-    m_pauseClicked = false;
     m_pauseButton.update(deltaTime, mousePosition);
 }
 

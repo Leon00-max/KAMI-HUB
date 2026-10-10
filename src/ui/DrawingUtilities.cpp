@@ -216,6 +216,22 @@ void DrawingUtilities::drawBlock(
     quads.append(sf::Vertex({x0 + b, midY}, sf::Color(255, 255, 255, 0)));
 
     target.draw(quads);
+
+    // Specular glint in the top-left of the face
+    if (size >= 10.f) {
+        drawRoundedRectangle(
+            target, sf::Vector2f(x0 + b + 1.f, y0 + b + 1.f), sf::Vector2f(size * 0.22f, size * 0.1f),
+            size * 0.05f, sf::Color(255, 255, 255, 120)
+        );
+    }
+
+    // Dark rim keeps same-colored neighbors visually separate
+    sf::RectangleShape rim(sf::Vector2f(x1 - x0, y1 - y0));
+    rim.setPosition(x0, y0);
+    rim.setFillColor(sf::Color::Transparent);
+    rim.setOutlineThickness(-1.f);
+    rim.setOutlineColor(Theme::withAlpha(Theme::darken(color, 0.35f), 170));
+    target.draw(rim);
 }
 
 void DrawingUtilities::drawLine(

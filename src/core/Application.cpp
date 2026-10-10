@@ -11,12 +11,9 @@
 #include "scenes/HomeScene.hpp"
 #include "ui/Theme.hpp"
 
-namespace {
-const std::filesystem::path AssetRoot{"assets"};
-}
-
 Application::Application(const Options& options)
-    : m_window(
+    : m_assetRoot(options.assetRoot),
+      m_window(
           sf::VideoMode(static_cast<unsigned int>(Theme::Layout::WindowWidth), static_cast<unsigned int>(Theme::Layout::WindowHeight)),
           "Arcade Hub",
           sf::Style::Default
@@ -26,7 +23,7 @@ Application::Application(const Options& options)
     updateLetterbox(m_window.getSize().x, m_window.getSize().y);
 
     sf::Image icon;
-    if (icon.loadFromFile((AssetRoot / "icons" / "app_icon.png").string())) {
+    if (icon.loadFromFile((m_assetRoot / "icons" / "app_icon.png").string())) {
         m_window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     }
 
@@ -45,13 +42,13 @@ void Application::loadResources() {
         {Theme::Fonts::Bold, "Exo2-Bold.ttf"},
     };
     for (const auto& font : fonts) {
-        const std::string path = (AssetRoot / "fonts" / font.file).string();
+        const std::string path = (m_assetRoot / "fonts" / font.file).string();
         if (!m_resources.loadFont(font.key, path)) {
             std::cerr << "Failed to load font " << path << "\n";
         }
     }
 
-    const std::string backgroundPath = (AssetRoot / "images" / "menu_background.png").string();
+    const std::string backgroundPath = (m_assetRoot / "images" / "menu_background.png").string();
     if (!m_resources.loadTexture("background", backgroundPath)) {
         std::cerr << "Using generated background because " << backgroundPath << " could not be loaded\n";
     }
